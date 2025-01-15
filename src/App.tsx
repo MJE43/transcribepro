@@ -1,37 +1,104 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import FileUpload from './components/FileUpload';
+import React, { useState } from 'react';
+import { Mic } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Transcription } from './features/transcription/components/Transcription';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [apiKey, setApiKey] = useState<string>(() => {
+    return localStorage.getItem('assemblyai-api-key') || '';
+  });
+
+  const handleApiKeySubmit = (newKey: string) => {
+    localStorage.setItem('assemblyai-api-key', newKey);
+    setApiKey(newKey);
+  };
+
+  if (!apiKey) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full space-y-8 p-8">
+          <div className="text-center">
+            <Mic className="mx-auto h-12 w-12 text-gray-400" />
+            <h2 className="mt-6 text-3xl font-bold text-gray-900">
+              Voice Transcription
+            </h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Enter your AssemblyAI API key to get started
+            </p>
+          </div>
+          <div className="mt-8 space-y-4">
+            <Input
+              type="password"
+              placeholder="Enter your API key"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+            <Button
+              className="w-full"
+              onClick={() => handleApiKeySubmit(apiKey)}
+            >
+              Get Started
+            </Button>
+            <div className="text-center">
+              <a
+                href="https://www.assemblyai.com/dashboard/signup"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
+                Need an API key? Sign up for AssemblyAI
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-      <FileUpload />
-    </>
-  )
-}
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center">
+            <Mic className="h-8 w-8 text-blue-500 mr-3" />
+            <h1 className="text-2xl font-bold text-gray-900">
+              Voice Transcription
+            </h1>
+          </div>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Change API Key</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Update API Key</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <Input
+                  type="password"
+                  placeholder="Enter new API key"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                />
+                <Button
+                  className="w-full"
+                  onClick={() => handleApiKeySubmit(apiKey)}
+                >
+                  Update
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </header>
 
-export default App
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <Transcription apiKey={apiKey} />
+      </main>
+    </div>
+  );
+};
+
+export default App;
